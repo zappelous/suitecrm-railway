@@ -1,12 +1,6 @@
 #!/bin/bash
 set -e
 
-# Configure Apache to listen on Railway's $PORT (default 80)
-APACHE_PORT="${PORT:-80}"
-sed -i "s/^Listen 80/Listen ${APACHE_PORT}/" /etc/apache2/ports.conf
-sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${APACHE_PORT}>/g" /etc/apache2/sites-available/000-default.conf
-grep -q "ServerName" /etc/apache2/apache2.conf || echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
 # Create persistent directories if they don't exist
 mkdir -p /data/suitecrm/upload /data/suitecrm/cache /data/suitecrm/custom
 
@@ -47,8 +41,12 @@ chown -h www-data:www-data /var/www/html/upload /var/www/html/cache /var/www/htm
 chown www-data:www-data /data/suitecrm/config.php 2>/dev/null || true
 chown www-data:www-data /data/suitecrm/config_override.php 2>/dev/null || true
 
-# Start cron
+# Start cron in background
 cron 2>/dev/null || true
 
-# Execute passed command
-exec "$@"
+# Use Railway's PORT or default to 80
+SERVER_PORT="${PORT:-80}"
+echo "[entrypoint] Starting PHP built-in server on port ${SERVER_PORT}"
+
+# Start PHP built-in server (guaranteed to work on Railway)
+php -S "0.0.0.0:${SERVER_PORT}" -t /var/www/html
