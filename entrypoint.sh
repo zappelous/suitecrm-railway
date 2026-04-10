@@ -46,24 +46,13 @@ fi
 touch /data/suitecrm/config_override.php 2>/dev/null || true
 ln -sfn /data/suitecrm/config_override.php /var/www/html/config_override.php
 
-# Make other key directories writable (but not symlinks, so container updates apply)
-chmod -R 775 /var/www/html/cache 2>/dev/null || true
-chmod -R 775 /var/www/html/upload 2>/dev/null || true
-chmod -R 775 /var/www/html/custom 2>/dev/null || true
-chmod -R 775 /var/www/html/modules 2>/dev/null || true
-chmod -R 775 /var/www/html/themes 2>/dev/null || true
-chmod -R 775 /var/www/html/data 2>/dev/null || true
-chmod -R 775 /var/www/html/include 2>/dev/null || true
-chmod -R 775 /var/www/html/XTemplate 2>/dev/null || true
-chmod -R 775 /var/www/html/Zend 2>/dev/null || true
-chmod 664 /var/www/html/config.php 2>/dev/null || true
-chmod 664 /var/www/html/config_override.php 2>/dev/null || true
+# Fix ownership only on symlinks and config files (fast)
+chown -h www-data:www-data /var/www/html/upload /var/www/html/cache /var/www/html/custom 2>/dev/null || true
+chown www-data:www-data /data/suitecrm/config.php 2>/dev/null || true
+chown www-data:www-data /data/suitecrm/config_override.php 2>/dev/null || true
 
-# Set ownership
-chown -R www-data:www-data /var/www/html /data/suitecrm
-
-# Start cron
-service cron start 2>/dev/null || cron
+# Start cron in background (non-blocking)
+cron 2>/dev/null || true
 
 # Execute passed command
 exec "$@"
