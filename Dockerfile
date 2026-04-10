@@ -57,6 +57,7 @@ RUN mkdir -p /data/suitecrm
 
 # Set ownership and writable permissions at build time
 RUN chown -R www-data:www-data /var/www/html /data/suitecrm \
+    && mkdir -p /var/www/html/cache /var/www/html/upload /var/www/html/custom /var/www/html/modules /var/www/html/themes /var/www/html/data /var/www/html/include /var/www/html/XTemplate /var/www/html/Zend \
     && chmod -R 775 /var/www/html/cache \
     /var/www/html/upload \
     /var/www/html/custom \
