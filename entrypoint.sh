@@ -8,6 +8,9 @@ rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load
 ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
 
+# Disable opcache to prevent segfaults in mod_php
+echo "opcache.enable=0" > /usr/local/etc/php/conf.d/zz-disable-opcache.ini
+
 # Configure Apache to listen on Railway's $PORT (default 80)
 APACHE_PORT="${PORT:-80}"
 echo "[entrypoint] Configuring Apache for port ${APACHE_PORT}"
