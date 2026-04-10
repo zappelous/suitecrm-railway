@@ -12,8 +12,6 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libssl-dev \
     libldap2-dev \
-    libc-client-dev \
-    libkrb5-dev \
     libpq-dev \
     unzip \
     git \
@@ -22,7 +20,6 @@ RUN apt-get update && apt-get install -y \
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
     && docker-php-ext-install -j$(nproc) \
     gd \
@@ -35,7 +32,6 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     xml \
     curl \
     bcmath \
-    imap \
     ldap \
     opcache
 
