@@ -5,10 +5,6 @@ set -e
 mkdir -p /data/suitecrm/upload
 mkdir -p /data/suitecrm/cache
 mkdir -p /data/suitecrm/custom
-mkdir -p /data/suitecrm/modules
-mkdir -p /data/suitecrm/themes
-mkdir -p /data/suitecrm/data
-mkdir -p /data/suitecrm/include
 
 # Function to setup persistent directory
 try_persist_dir() {
@@ -31,13 +27,10 @@ try_persist_dir() {
     fi
 }
 
-# Seed and link directories
+# Only symlink directories that truly need persistence
 try_persist_dir /data/suitecrm/upload /var/www/html/upload
 try_persist_dir /data/suitecrm/cache /var/www/html/cache
 try_persist_dir /data/suitecrm/custom /var/www/html/custom
-try_persist_dir /data/suitecrm/modules /var/www/html/modules
-try_persist_dir /data/suitecrm/themes /var/www/html/themes
-try_persist_dir /data/suitecrm/data /var/www/html/data
 
 # Handle config files
 if [ ! -f /data/suitecrm/config.php ] && [ -f /var/www/html/config.php ] && [ ! -L /var/www/html/config.php ]; then
@@ -53,18 +46,21 @@ fi
 touch /data/suitecrm/config_override.php 2>/dev/null || true
 ln -sfn /data/suitecrm/config_override.php /var/www/html/config_override.php
 
-# Set ownership
-chown -R www-data:www-data /var/www/html /data/suitecrm
-
-# Set writable permissions
+# Make other key directories writable (but not symlinks, so container updates apply)
 chmod -R 775 /var/www/html/cache 2>/dev/null || true
 chmod -R 775 /var/www/html/upload 2>/dev/null || true
 chmod -R 775 /var/www/html/custom 2>/dev/null || true
 chmod -R 775 /var/www/html/modules 2>/dev/null || true
 chmod -R 775 /var/www/html/themes 2>/dev/null || true
 chmod -R 775 /var/www/html/data 2>/dev/null || true
+chmod -R 775 /var/www/html/include 2>/dev/null || true
+chmod -R 775 /var/www/html/XTemplate 2>/dev/null || true
+chmod -R 775 /var/www/html/Zend 2>/dev/null || true
 chmod 664 /var/www/html/config.php 2>/dev/null || true
 chmod 664 /var/www/html/config_override.php 2>/dev/null || true
+
+# Set ownership
+chown -R www-data:www-data /var/www/html /data/suitecrm
 
 # Start cron
 service cron start 2>/dev/null || cron
