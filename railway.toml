@@ -2,8 +2,7 @@
 builder = "DOCKERFILE"
 
 [deploy]
-startCommand = "/entrypoint.sh apache2-foreground"
-healthcheckPath = "/"
+healthcheckPath = "/health.php"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10

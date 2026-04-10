@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     cron \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
+# Install PHP extensions (minimal, no opcache)
 RUN docker-php-ext-install -j$(nproc) \
     mysqli \
     pdo_mysql \
@@ -21,8 +21,7 @@ RUN docker-php-ext-install -j$(nproc) \
     zip \
     mbstring \
     xml \
-    curl \
-    opcache
+    curl
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

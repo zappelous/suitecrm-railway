@@ -46,7 +46,14 @@ cron 2>/dev/null || true
 
 # Use Railway's PORT or default to 80
 SERVER_PORT="${PORT:-80}"
-echo "[entrypoint] Starting PHP built-in server on port ${SERVER_PORT}"
+echo "[entrypoint] PORT env = ${PORT}"
+echo "[entrypoint] Server port = ${SERVER_PORT}"
+echo "[entrypoint] PHP version:"
+php -v
+echo "[entrypoint] Listing web root:"
+ls -la /var/www/html | head -n 10
+echo "[entrypoint] Testing health.php:"
+php -r "echo file_exists('/var/www/html/health.php') ? 'health.php exists\n' : 'health.php MISSING\n';"
 
-# Start PHP built-in server (guaranteed to work on Railway)
-php -S "0.0.0.0:${SERVER_PORT}" -t /var/www/html
+echo "[entrypoint] Starting PHP built-in server on 0.0.0.0:${SERVER_PORT}"
+exec php -S "0.0.0.0:${SERVER_PORT}" -t /var/www/html
