@@ -1,0 +1,7 @@
+git
+.github
+codeception.dist.yml
+.travis.yml
+tests
+*.md
+!README.md
