@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.2-apache-bookworm
 
 # Install dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     libcurl4-openssl-dev \
     libssl-dev \
     libldap2-dev \
+    libc-client-dev \
+    libkrb5-dev \
     libpq-dev \
     unzip \
     git \
@@ -20,6 +22,7 @@ RUN apt-get update && apt-get install -y \
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
     && docker-php-ext-install -j$(nproc) \
     gd \
@@ -32,13 +35,12 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     xml \
     curl \
     bcmath \
+    imap \
     ldap \
     opcache
 
-# Enable Apache mod_rewrite and fix MPM conflict
-RUN a2dismod mpm_event || true \
-    && a2enmod mpm_prefork \
-    && a2enmod rewrite
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
