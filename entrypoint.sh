@@ -6,6 +6,12 @@ rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load
 ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
 ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
 
+# Configure Apache to listen on Railway's $PORT (default 80)
+APACHE_PORT="${PORT:-80}"
+sed -i "s/^Listen 80/Listen ${APACHE_PORT}/" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${APACHE_PORT}>/g" /etc/apache2/sites-available/000-default.conf
+grep -q "ServerName" /etc/apache2/apache2.conf || echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Create persistent directories if they don't exist
 mkdir -p /data/suitecrm/upload
 mkdir -p /data/suitecrm/cache
