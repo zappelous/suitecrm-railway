@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# Fix Apache MPM conflict at runtime (guarantee only mpm_prefork is enabled)
+rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load
+ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
+
 # Create persistent directories if they don't exist
 mkdir -p /data/suitecrm/upload
 mkdir -p /data/suitecrm/cache
