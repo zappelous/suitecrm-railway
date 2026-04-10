@@ -39,9 +39,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     ldap \
     opcache
 
-# Fix Apache MPM conflict: disable ALL MPMs then enable only prefork
-RUN a2dismod mpm_event mpm_worker mpm_prefork 2>/dev/null || true \
-    && a2enmod mpm_prefork \
+# Fix Apache MPM conflict: force only mpm_prefork by directly managing symlinks
+RUN rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
     && a2enmod rewrite
 
 # Install Composer
