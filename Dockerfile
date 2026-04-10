@@ -2,44 +2,28 @@ FROM php:8.2-apache-bookworm
 
 # Install dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
-    libicu-dev \
     libcurl4-openssl-dev \
     libssl-dev \
-    libldap2-dev \
     libpq-dev \
     unzip \
     git \
     cron \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure and install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
-    && docker-php-ext-install -j$(nproc) \
-    gd \
+# Configure and install PHP extensions (minimal set first)
+RUN docker-php-ext-install -j$(nproc) \
     mysqli \
     pdo_mysql \
     pdo_pgsql \
     zip \
-    intl \
     mbstring \
     xml \
-    curl \
-    bcmath \
-    ldap \
-    opcache
+    curl
 
-# Fix Apache MPM conflict: force only mpm_prefork by directly managing symlinks
-RUN rm -f /etc/apache2/mods-enabled/mpm_*.conf /etc/apache2/mods-enabled/mpm_*.load \
-    && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf \
-    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
-    && a2enmod rewrite
+RUN a2enmod rewrite
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
