@@ -1,7 +1,13 @@
 #!/bin/bash
 set -e
 
-# Ensure required directories exist
+# Configure Apache to listen on Railway's $PORT (default 80)
+APACHE_PORT="${PORT:-80}"
+sed -i "s/^Listen 80/Listen ${APACHE_PORT}/" /etc/apache2/ports.conf
+sed -i "s/<VirtualHost \*:80>/<VirtualHost *:${APACHE_PORT}>/g" /etc/apache2/sites-available/000-default.conf
+grep -q "ServerName" /etc/apache2/apache2.conf || echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Create persistent directories if they don't exist
 mkdir -p /data/suitecrm/upload /data/suitecrm/cache /data/suitecrm/custom
 
 try_persist_dir() {
@@ -44,12 +50,5 @@ chown www-data:www-data /data/suitecrm/config_override.php 2>/dev/null || true
 # Start cron
 cron 2>/dev/null || true
 
-# Substitute Railway $PORT into nginx config
-PORT="${PORT:-80}"
-sed -i "s/\${PORT}/${PORT}/g" /etc/nginx/nginx.conf
-
-# Start php-fpm in background
-php-fpm -D
-
-# Start nginx in foreground
-nginx -g 'daemon off;'
+# Execute passed command
+exec "$@"
