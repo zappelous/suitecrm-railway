@@ -39,8 +39,10 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     ldap \
     opcache
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Fix Apache MPM conflict: PHP requires mpm_prefork, but base image enables mpm_event
+RUN a2dismod mpm_event \
+    && a2enmod mpm_prefork \
+    && a2enmod rewrite
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
