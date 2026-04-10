@@ -39,8 +39,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     ldap \
     opcache
 
-# Fix Apache MPM conflict: PHP requires mpm_prefork, but base image enables mpm_event
-RUN a2dismod mpm_event \
+# Fix Apache MPM conflict: disable ALL MPMs then enable only prefork
+RUN a2dismod mpm_event mpm_worker mpm_prefork 2>/dev/null || true \
     && a2enmod mpm_prefork \
     && a2enmod rewrite
 
